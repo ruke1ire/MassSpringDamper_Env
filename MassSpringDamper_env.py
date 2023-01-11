@@ -1,8 +1,8 @@
-import gym
+import gymnasium as gym
 #import gym_environments.envs
 
-from gym import error, spaces, utils
-from gym.utils import seeding
+from gymnasium import error, spaces, utils
+from gymnasium.utils import seeding
 
 import numpy as np
 
@@ -12,7 +12,7 @@ import numpy as np
 
 class MassSpringDamperEnv(gym.Env):
 	metadata = {
-        'render.modes': ['human', 'rgb_array'],
+        'render_modes': ['human', 'rgb_array'],
         'video.frames_per_second' : 50
     }
 	def __init__(self): #, spring_stiffness, damper_factor, mass, max_force4
@@ -57,12 +57,10 @@ class MassSpringDamperEnv(gym.Env):
 			#print(x_dot_goal-x_dot)
 			if (np.abs(x-x_goal) < 0.001) and (np.abs(x_dot_goal-x_dot) < 0.0001):
 				reward = 10
-				done= True
 
 		if x < -self.x_treshold or x > self.x_treshold:
 			print("Mass out of bounds!")
 			reward = np.array(-100.0)
-			done = True
 		if done:
 			if self.steps_beyond_done is None:
 				self.steps_beyond_done = 0
@@ -75,11 +73,10 @@ class MassSpringDamperEnv(gym.Env):
 			self.steps_taken = 1
 		else:
 			self.steps_taken += 1
-			if self.steps_taken == 200:
+			if self.steps_taken == 1000:
 				done = True
 
-				print("her steps taken : ",-np.abs(x - x_goal), x_dot)
-		return np.array(self.state), reward, done,  {}
+		return np.array(self.state, dtype = np.float32), float(reward), done,  {}, {}
 
 	def reset(self,goal_x=-2.0,goal_x_dot=0.0):
 		self.state = (np.random.uniform(low = -self.x_treshold/2.0, high = self.x_treshold/2.0),np.random.uniform(low = -0.01, high = 0.01))
@@ -88,7 +85,7 @@ class MassSpringDamperEnv(gym.Env):
 		self.steps_taken = None
 		self.steps_beyond_done = None
 		self.goal_state =(goal_x,goal_x_dot)
-		return np.array(self.state)
+		return np.array(self.state, dtype = np.float32), {}
 
 	def render(self, mode='human'):
 		screen_width = 600
