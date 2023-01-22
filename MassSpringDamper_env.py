@@ -37,7 +37,6 @@ class MassSpringDamperEnv(gym.Env):
 
 	def step(self, action):
 		if not self.action_space.contains(action):
-			print("ILLEGAL ACTION CLIPPED : ", action)
 			action = np.clip(action,-1,1)
 		assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
 		state = self.state
@@ -49,18 +48,12 @@ class MassSpringDamperEnv(gym.Env):
 		self.state = (x[0],x_dot[0]) #!!
 
 		x_goal,x_dot_goal = self.goal_state
-		done = False
-		reward = -np.abs(x - x_goal)**2-0.1*np.abs(action)-1
-		if (np.abs(x-x_goal) < 0.001) and (np.abs(x_dot_goal-x_dot) < 0.001):
-			reward = 1
 
-			#print(x_dot_goal-x_dot)
-			if (np.abs(x-x_goal) < 0.001) and (np.abs(x_dot_goal-x_dot) < 0.0001):
-				reward = 10
+		done = False
+		reward = -np.abs(x - x_goal)**2
 
 		if x < -self.x_treshold or x > self.x_treshold:
-			print("Mass out of bounds!")
-			reward = np.array(-100.0)
+			reward = -1
 		if done:
 			if self.steps_beyond_done is None:
 				self.steps_beyond_done = 0
